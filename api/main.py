@@ -11,9 +11,10 @@ import json
 from datetime import datetime
 
 # Import our modules
-from .models import StoryRequest, SceneBreakdownResponse, ImageGenerationRequest, ImageGenerationResponse
+from .models import StoryRequest, SceneBreakdownResponse, ImageGenerationRequest, ImageGenerationResponse, VoiceGenerationRequest, VoiceGenerationResponse
 from .modules.story_to_scenes import story_processor
 from .modules.generate_image import image_generator
+from .modules.generate_voice import voice_generator
 
 # Load environment variables
 load_dotenv()
@@ -172,6 +173,41 @@ async def generate_images_for_scenes(scenes_data: list):
     except Exception as e:
         logger.error(f"Error in batch image generation endpoint: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to generate images: {str(e)}")
+
+@app.post("/generate-voice", response_model=VoiceGenerationResponse)
+async def generate_voice(request: VoiceGenerationRequest):
+    """Generate voice narration using ElevenLabs"""
+    try:
+        logger.info(f"Received voice generation request: {len(request.text)} characters")
+        
+        # Generate voice
+        response = await voice_generator.generate_voice(request)
+        
+        logger.info(f"Voice generation completed")
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error in voice generation endpoint: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate voice: {str(e)}")
+
+@app.post("/generate-story-narration")
+async def generate_story_narration(story_data: dict):
+    """Generate narration for an entire story"""
+    try:
+        story_text = story_data.get("story_text", "")
+        voice_type = story_data.get("voice_type", "narrator")
+        
+        logger.info(f"Received story narration request: {len(story_text)} characters")
+        
+        # Generate narration
+        response = await voice_generator.generate_narration_for_story(story_text, voice_type)
+        
+        logger.info(f"Story narration completed")
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error in story narration endpoint: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate story narration: {str(e)}")
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
