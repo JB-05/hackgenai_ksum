@@ -44,21 +44,12 @@ class Config:
     @classmethod
     def validate_config(cls) -> bool:
         """Validate that all required configuration is present"""
-        required_keys = [
-            "OPENAI_API_KEY",
-            "ELEVENLABS_API_KEY"
-        ]
-        
-        missing_keys = []
-        for key in required_keys:
-            if not getattr(cls, key):
-                missing_keys.append(key)
-        
+        required_keys = ["OPENAI_API_KEY"]
+        missing_keys = [key for key in required_keys if not getattr(cls, key)]
+
         if missing_keys:
-            print(f"Warning: Missing required environment variables: {missing_keys}")
-            print("Some features may not work without these API keys.")
-            return False
-        
+            raise RuntimeError(f"🚨 Missing required environment variables: {missing_keys}")
+        print("✅ All required config variables are present.")
         return True
     
     @classmethod
@@ -71,4 +62,10 @@ class Config:
         }
 
 # Global config instance
-config = Config() 
+config = Config()
+
+# Add logging for OPENAI_API_KEY loading status
+print(f"[CONFIG CHECK] ✅ OPENAI_API_KEY Loaded: {bool(Config.OPENAI_API_KEY)}")
+
+# Validate configuration at startup
+config.validate_config() 

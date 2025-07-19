@@ -147,5 +147,15 @@ class ImageGenerator:
         
         return results
 
-# Global generator instance
-image_generator = ImageGenerator() 
+# Global image generator instance
+_image_generator = None
+
+def get_image_generator():
+    """Get the global image generator instance"""
+    global _image_generator
+    if _image_generator is None:
+        _image_generator = ImageGenerator()
+    return _image_generator
+
+# For backward compatibility
+image_generator = get_image_generator() 

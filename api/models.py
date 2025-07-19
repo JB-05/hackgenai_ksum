@@ -44,23 +44,30 @@ class VoiceGenerationRequest(BaseModel):
 
 class VoiceGenerationResponse(BaseModel):
     """Response model for voice generation"""
-    audio_url: str = Field(..., description="URL or path to generated audio")
-    duration: float = Field(..., description="Audio duration in seconds")
-    voice_used: str = Field(..., description="Voice ID used")
-    processing_time: float = Field(..., description="Time taken to process in seconds")
+    success: bool = Field(..., description="Success status")
+    message: str = Field(..., description="Response message")
+    audio_file: Optional[str] = Field(None, description="Path to generated audio file")
+    duration: Optional[float] = Field(None, description="Audio duration in seconds")
+    voice_id: Optional[str] = Field(None, description="Voice ID used")
+    text_length: Optional[int] = Field(None, description="Length of processed text")
 
 class MusicGenerationRequest(BaseModel):
     """Request model for music generation"""
-    mood: str = Field(..., description="Mood for music (happy, sad, dramatic, calm, etc.)")
+    story_title: str = Field(..., description="Title of the story")
+    story_text: str = Field(..., description="The story text")
+    scenes: List[Dict] = Field(..., description="List of scene dictionaries")
+    mood: Optional[str] = Field("neutral", description="Mood for music (happy, sad, mysterious, adventurous, calm, neutral)")
     duration: Optional[int] = Field(60, description="Duration in seconds", ge=10, le=300)
-    style: Optional[str] = Field("ambient", description="Music style")
+    style: Optional[str] = Field("ambient", description="Music style (ambient, orchestral, electronic, acoustic)")
 
 class MusicGenerationResponse(BaseModel):
     """Response model for music generation"""
-    music_url: str = Field(..., description="URL or path to generated music")
-    duration: float = Field(..., description="Music duration in seconds")
-    mood: str = Field(..., description="Mood used for generation")
-    processing_time: float = Field(..., description="Time taken to process in seconds")
+    success: bool = Field(..., description="Success status")
+    message: str = Field(..., description="Response message")
+    music_file: Optional[str] = Field(None, description="Path to generated music file")
+    duration: Optional[int] = Field(None, description="Music duration in seconds")
+    style: Optional[str] = Field(None, description="Music style used")
+    mood: Optional[str] = Field(None, description="Mood used for generation")
 
 class VideoCreationRequest(BaseModel):
     """Request model for video creation"""

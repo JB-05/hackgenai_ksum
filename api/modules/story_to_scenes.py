@@ -170,4 +170,14 @@ Requirements:
         return scenes
 
 # Global processor instance
-story_processor = StoryToScenesProcessor() 
+_story_processor = None
+
+def get_story_processor():
+    """Get the global story processor instance"""
+    global _story_processor
+    if _story_processor is None:
+        _story_processor = StoryToScenesProcessor()
+    return _story_processor
+
+# For backward compatibility
+story_processor = get_story_processor() 

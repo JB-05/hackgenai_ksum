@@ -12,41 +12,42 @@ class FileManager:
     """Utility class for managing files in the save_outputs directory"""
     
     def __init__(self, base_dir: str = "save_outputs"):
-        self.base_dir = base_dir
+        self.base_dir = Path(base_dir)
         self.ensure_directories()
     
     def ensure_directories(self):
         """Create necessary directories if they don't exist"""
         directories = [
             self.base_dir,
-            f"{self.base_dir}/scenes",
-            f"{self.base_dir}/images",
-            f"{self.base_dir}/audio", 
-            f"{self.base_dir}/music",
-            f"{self.base_dir}/videos"
+            self.base_dir / "scenes",
+            self.base_dir / "images",
+            self.base_dir / "audio", 
+            self.base_dir / "music",
+            self.base_dir / "videos"
         ]
         for directory in directories:
-            os.makedirs(directory, exist_ok=True)
+            directory.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Ensured directory exists: {directory}")
     
     def save_json(self, data: Dict[str, Any], file_type: str, filename: Optional[str] = None) -> str:
         """Save JSON data to a file"""
         if filename is None:
             filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}.json"
         
-        file_path = os.path.join(self.base_dir, file_type, filename)
+        file_path = self.base_dir / file_type / filename
         
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
             logger.info(f"Saved JSON file: {file_path}")
-            return filename
+            return str(file_path)
         except Exception as e:
             logger.error(f"Error saving JSON file: {e}")
             raise
     
     def load_json(self, file_type: str, filename: str) -> Dict[str, Any]:
         """Load JSON data from a file"""
-        file_path = os.path.join(self.base_dir, file_type, filename)
+        file_path = self.base_dir / file_type / filename
         
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -59,37 +60,45 @@ class FileManager:
     
     def save_file(self, content: bytes, file_type: str, filename: str) -> str:
         """Save binary content to a file"""
-        file_path = os.path.join(self.base_dir, file_type, filename)
+        file_path = self.base_dir / file_type / filename
         
         try:
             with open(file_path, 'wb') as f:
                 f.write(content)
             logger.info(f"Saved file: {file_path}")
-            return filename
+            return str(file_path)
         except Exception as e:
             logger.error(f"Error saving file: {e}")
             raise
     
     def file_exists(self, file_type: str, filename: str) -> bool:
         """Check if a file exists"""
-        file_path = os.path.join(self.base_dir, file_type, filename)
-        return os.path.exists(file_path)
+        file_path = self.base_dir / file_type / filename
+        return file_path.exists()
     
     def list_files(self, file_type: str) -> List[str]:
         """List all files in a directory"""
-        dir_path = os.path.join(self.base_dir, file_type)
-        if not os.path.exists(dir_path):
+        dir_path = self.base_dir / file_type
+        if not dir_path.exists():
             return []
         
         files = []
-        for filename in os.listdir(dir_path):
-            if os.path.isfile(os.path.join(dir_path, filename)):
-                files.append(filename)
+        for file_path in dir_path.iterdir():
+            if file_path.is_file():
+                files.append(file_path.name)
         return files
     
     def get_file_path(self, file_type: str, filename: str) -> str:
         """Get the full path to a file"""
-        return os.path.join(self.base_dir, file_type, filename)
+        file_path = self.base_dir / file_type / filename
+        return str(file_path)
+    
+    def get_file_size(self, file_type: str, filename: str) -> int:
+        """Get the size of a file in bytes"""
+        file_path = self.base_dir / file_type / filename
+        if file_path.exists():
+            return file_path.stat().st_size
+        return 0
 
 class RetryHandler:
     """Utility class for handling retries with exponential backoff"""
