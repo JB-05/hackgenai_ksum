@@ -6,17 +6,21 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 import os
 
-from ..workflow_models import (
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from workflow_models import (
     UserPromptRequest, EnhancedPromptResponse, UserConfirmationRequest,
     GenerationProgress, StoryScript, FinalVideoResponse, WorkflowStatus
 )
-from api.models import StoryRequest, SceneBreakdownResponse
+from models import StoryRequest, SceneBreakdownResponse
 from .prompt_enhancer import prompt_enhancer
 from .story_to_scenes import story_processor
 from .generate_image import image_generator
 from .generate_voice import voice_generator
 from .generate_music import generate_music_for_story
-from ..utils import file_manager
+from utils import file_manager
 
 logger = logging.getLogger(__name__)
 

@@ -14,8 +14,12 @@ import uuid
 from pathlib import Path
 from pydantic import BaseModel
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 # Import utilities
-from ..utils import file_manager, retry_handler, response_formatter
+from utils import file_manager
 
 logger = logging.getLogger(__name__)
 

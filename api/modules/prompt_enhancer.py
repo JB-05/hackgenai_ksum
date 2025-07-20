@@ -1,20 +1,23 @@
-import openai
 import logging
 import time
 import re
 from typing import List, Dict, Any
-from ..workflow_models import UserPromptRequest, EnhancedPromptResponse
-from ..utils import retry_handler
-from ..config import config
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from workflow_models import UserPromptRequest, EnhancedPromptResponse
+from utils.gemini_client import get_gemini_client
+from config import config
 
 logger = logging.getLogger(__name__)
 
 class PromptEnhancer:
-    """Enhances user prompts into full stories"""
+    """Enhances user prompts into full stories using Google Gemini"""
     
     def __init__(self):
-        self.client = openai.OpenAI(api_key=config.OPENAI_API_KEY)
-        self.model = config.OPENAI_MODEL
+        self.gemini_client = get_gemini_client()
+        self.system_prompt = "You are a professional story writer and creative director specializing in video storytelling."
     
     def _create_enhancement_prompt(self, user_prompt: str, title: str = None, max_scenes: int = 4) -> str:
         """Create the prompt for story enhancement"""
@@ -69,10 +72,10 @@ Make the story engaging, visual, and ready for video production.
                 request.max_scenes
             )
             
-            # Call GPT-4 with retry mechanism
-            response = await retry_handler.retry_async(
-                self._call_openai,
-                prompt
+            # Call Gemini with retry mechanism
+            response = await self.gemini_client.generate_text_with_retry(
+                prompt,
+                self.system_prompt
             )
             
             # Parse the response
@@ -99,24 +102,15 @@ Make the story engaging, visual, and ready for video production.
             logger.error(f"Error enhancing prompt: {e}")
             raise
     
-    async def _call_openai(self, prompt: str) -> str:
-        """Call OpenAI API for prompt enhancement"""
+    async def _call_gemini(self, prompt: str) -> str:
+        """Call Gemini API for prompt enhancement"""
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": "You are a professional story writer and creative director specializing in video storytelling."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=config.OPENAI_MAX_TOKENS,
-                temperature=0.8
-            )
-            
-            return response.choices[0].message.content
-            
+            return await self.gemini_client.generate_text(prompt, self.system_prompt)
         except Exception as e:
-            logger.error(f"OpenAI API error: {e}")
-            raise
+            logger.error(f"Gemini API error: {e}")
+            # Handle Gemini-specific errors
+            error_info = self.gemini_client.handle_gemini_error(e)
+            raise Exception(f"Gemini API error: {error_info['message']}")
     
     def _parse_enhancement_response(self, response: str) -> Dict[str, Any]:
         import json

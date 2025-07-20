@@ -2,9 +2,13 @@ import logging
 import time
 import os
 from typing import Optional, Dict, Any
-from ..models import VoiceGenerationRequest, VoiceGenerationResponse
-from ..utils import file_manager, retry_handler, response_formatter
-from ..config import config
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from models import VoiceGenerationRequest, VoiceGenerationResponse
+from utils import file_manager, retry_handler
+from config import config
 
 logger = logging.getLogger(__name__)
 

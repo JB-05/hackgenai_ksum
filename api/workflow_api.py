@@ -12,11 +12,17 @@ import pathlib
 import json
 
 # Import our workflow modules
-from .modules.workflow_manager  import (
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from modules.workflow_manager  import (
     UserPromptRequest, EnhancedPromptResponse, UserConfirmationRequest,
     GenerationProgress, StoryScript, FinalVideoResponse, WorkflowStatus
 )
-from .modules.workflow_manager import get_workflow_manager
+from modules.workflow_manager import get_workflow_manager
+from modules.story_to_scenes import get_story_processor
+from models import StoryRequest, SceneBreakdownResponse
 
 # Load environment variables
 load_dotenv()
@@ -122,6 +128,8 @@ async def list_workflow_endpoints():
             {"path": "/api/workflow/endpoints", "method": "GET", "description": "List workflow endpoints"},
             {"path": "/api/workflow/create", "method": "POST", "description": "Create new workflow"},
             {"path": "/api/workflow/{workflow_id}/enhance", "method": "POST", "description": "Enhance user prompt"},
+            {"path": "/api/workflow/{workflow_id}/scenes", "method": "POST", "description": "Generate scenes from story"},
+            {"path": "/api/workflow/{workflow_id}/scenes/regenerate", "method": "POST", "description": "Regenerate scenes from story"},
             {"path": "/api/workflow/{workflow_id}/confirm", "method": "POST", "description": "User confirmation"},
             {"path": "/api/workflow/{workflow_id}/generate", "method": "POST", "description": "Generate complete video"},
             {"path": "/api/workflow/{workflow_id}/status", "method": "GET", "description": "Get workflow status"},
@@ -151,8 +159,11 @@ async def create_workflow():
 @app.post("/api/workflow/{workflow_id}/enhance", response_model=EnhancedPromptResponse)
 async def enhance_prompt(workflow_id: str, request: UserPromptRequest):
     """Phase 1: Enhance user prompt"""
+    import traceback
+    
     try:
         logger.info(f"Enhancing prompt for workflow {workflow_id}")
+        logger.info(f"Request data: {request.model_dump()}")
         
         # Enhance the prompt
         enhanced_response = await get_workflow_manager().enhance_prompt(workflow_id, request)
@@ -162,10 +173,60 @@ async def enhance_prompt(workflow_id: str, request: UserPromptRequest):
         
     except ValueError as e:
         logger.error(f"Workflow not found: {e}")
+        logger.error(f"Full traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         logger.error(f"Error enhancing prompt for workflow {workflow_id}: {e}")
+        logger.error(f"Full traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Failed to enhance prompt: {str(e)}")
+
+@app.post("/api/workflow/{workflow_id}/scenes", response_model=SceneBreakdownResponse)
+async def generate_scenes(workflow_id: str, request: StoryRequest):
+    """Generate scenes from enhanced story"""
+    try:
+        logger.info(f"Generating scenes for workflow {workflow_id}")
+        
+        # Get the story processor
+        story_processor = get_story_processor()
+        if not story_processor:
+            raise HTTPException(status_code=500, detail="Story processor not available")
+        
+        # Generate scenes
+        scenes_response = await story_processor.process_story(request)
+        
+        logger.info(f"Scene generation completed for workflow {workflow_id}: {scenes_response.total_scenes} scenes")
+        return scenes_response
+        
+    except ValueError as e:
+        logger.error(f"Invalid request: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error generating scenes for workflow {workflow_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate scenes: {str(e)}")
+
+@app.post("/api/workflow/{workflow_id}/scenes/regenerate", response_model=SceneBreakdownResponse)
+async def regenerate_scenes(workflow_id: str, request: StoryRequest):
+    """Regenerate scenes from enhanced story"""
+    try:
+        logger.info(f"Regenerating scenes for workflow {workflow_id}")
+        
+        # Get the story processor
+        story_processor = get_story_processor()
+        if not story_processor:
+            raise HTTPException(status_code=500, detail="Story processor not available")
+        
+        # Regenerate scenes
+        scenes_response = await story_processor.regenerate_scenes(request)
+        
+        logger.info(f"Scene regeneration completed for workflow {workflow_id}: {scenes_response.total_scenes} scenes")
+        return scenes_response
+        
+    except ValueError as e:
+        logger.error(f"Invalid request: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error regenerating scenes for workflow {workflow_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to regenerate scenes: {str(e)}")
 
 @app.post("/api/workflow/{workflow_id}/confirm")
 async def confirm_generation(workflow_id: str, confirmation: UserConfirmationRequest):

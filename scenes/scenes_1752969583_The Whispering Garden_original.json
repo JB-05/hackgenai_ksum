@@ -1,0 +1,31 @@
+{
+  "story_title": "The Whispering Garden",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "description": "Bored siblings discover a talking black cat, Midnight, in a dilapidated shed, who invites them into a hidden world.",
+      "prompt": "A whimsical, slightly dark and mysterious scene. Two children, a boy and a girl around 10 years old, stand in awe before a sleek black cat with emerald eyes in a dimly lit, overgrown shed. Sunlight streams through cracks in the weathered wood, illuminating dust motes.  The cat wears a tiny silver collar. Style:  whimsical realism, slightly gothic.",
+      "duration": 5
+    },
+    {
+      "scene_number": 2,
+      "description": "Midnight leads the children through a hidden gate into a vibrant, enchanted secret garden, where they meet a mischievous sprite guarding a key.",
+      "prompt": "A breathtaking secret garden bathed in dappled sunlight. Ancient trees, vibrant flowers in a kaleidoscope of colors, a babbling brook reflecting the sky, and butterflies with stained-glass wings.  A small, playful sprite with glowing eyes is perched on a giant sunflower. The children, eyes wide with wonder, stand in the middle of the garden. Style:  vibrant fantasy art, painterly.",
+      "duration": 5
+    },
+    {
+      "scene_number": 3,
+      "description": "The children overcome challenges in the garden – a thorny maze, wind riddles, and a rope bridge – showcasing teamwork and determination.",
+      "prompt": "A montage of scenes showing the children navigating challenges: struggling through a thorny maze, looking perplexed at swirling leaves carrying whispered riddles, carefully crossing a wobbly rope bridge over a sparkling brook.  Midnight watches encouragingly from the background.  Style: dynamic, adventurous, slightly cinematic.",
+      "duration": 5
+    },
+    {
+      "scene_number": 4,
+      "description": "The children find a chest containing storybooks, discovering the true treasure is imagination; they bid farewell to Midnight as the garden fades.",
+      "prompt": "The children open an ornate chest to reveal beautifully illustrated storybooks.  Midnight smiles serenely. The setting sun casts long shadows across the garden, which begins to subtly fade back into the ordinary garden. The children, hand in hand, walk away, their faces filled with joy and wonder. Style: warm, magical realism, soft lighting.",
+      "duration": 5
+    }
+  ],
+  "total_scenes": 4,
+  "processing_time": 4.039541244506836
+}

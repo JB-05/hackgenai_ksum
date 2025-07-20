@@ -1,23 +1,30 @@
-import openai
 import logging
 import time
 import requests
 import os
 from typing import Optional, Dict, Any
-from ..models import ImageGenerationRequest, ImageGenerationResponse
-from ..utils import file_manager, retry_handler, response_formatter
-from ..config import config
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from models import ImageGenerationRequest, ImageGenerationResponse
+from utils import file_manager
+from utils.gemini_client import get_gemini_client
+from config import config
 import asyncio
 
 logger = logging.getLogger(__name__)
 
 class ImageGenerator:
-    """Generate images using DALL-E 3 from scene prompts"""
+    """Generate images using various AI services from scene prompts"""
     
     def __init__(self):
-        self.client = openai.OpenAI(api_key=config.OPENAI_API_KEY)
+        self.gemini_client = get_gemini_client()
         self.default_size = config.DEFAULT_IMAGE_SIZE
         self.default_style = config.DEFAULT_IMAGE_STYLE
+        # Note: For actual image generation, we might need to use a different service
+        # as Gemini Pro Vision is primarily for image analysis
+        self.use_openai_dalle = bool(config.OPENAI_API_KEY)
     
     def _enhance_prompt(self, scene_description: str, style: str = "realistic") -> str:
         """Enhance the scene description for better image generation"""
@@ -52,8 +59,7 @@ class ImageGenerator:
             )
             
             # Generate image with retry mechanism
-            image_url = await retry_handler.retry_async(
-                self._call_dalle,
+            image_url = await self._generate_image_with_service(
                 enhanced_prompt,
                 request.size
             )
@@ -80,21 +86,38 @@ class ImageGenerator:
             logger.error(f"Error generating image for scene {request.scene_number}: {e}")
             raise
     
-    async def _call_dalle(self, prompt: str, size: str) -> str:
-        """Call DALL-E 3 API"""
+    async def _generate_image_with_service(self, prompt: str, size: str) -> str:
+        """Generate image using available services"""
         try:
-            response = self.client.images.generate(
-                model="dall-e-3",
-                prompt=prompt,
-                size=size,
-                quality="standard",
-                n=1
-            )
-            
-            return response.data[0].url
-            
+            if self.use_openai_dalle:
+                # Use DALL-E if OpenAI API key is available
+                import openai
+                client = openai.OpenAI(api_key=config.OPENAI_API_KEY)
+                response = client.images.generate(
+                    model="dall-e-3",
+                    prompt=prompt,
+                    size=size,
+                    quality="standard",
+                    n=1
+                )
+                return response.data[0].url
+            else:
+                # Fallback: Use Gemini for prompt enhancement and return placeholder
+                logger.warning("⚠️ Image generation not available with current setup")
+                logger.info("Using Gemini to enhance prompt for future image generation")
+                
+                # Use Gemini to enhance the prompt
+                enhanced_prompt = await self.gemini_client.generate_text(
+                    f"Enhance this image generation prompt for better results: {prompt}",
+                    "You are an expert at creating detailed image generation prompts."
+                )
+                
+                # For now, return a placeholder URL
+                # In a real implementation, you might use another image generation service
+                return f"placeholder_image_{int(time.time())}.png"
+                
         except Exception as e:
-            logger.error(f"DALL-E API error: {e}")
+            logger.error(f"Image generation API error: {e}")
             raise
     
     async def _download_and_save_image(self, image_url: str, scene_number: int) -> str:

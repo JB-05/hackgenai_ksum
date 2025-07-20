@@ -22,6 +22,12 @@ class Config:
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
     OPENAI_MAX_TOKENS: int = int(os.getenv("OPENAI_MAX_TOKENS", "2000"))
     
+    # Google Gemini Configuration
+    GEMINI_API_KEY: Optional[str] = os.getenv("GEMINI_API_KEY")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+    GEMINI_VISION_MODEL: str = os.getenv("GEMINI_VISION_MODEL", "gemini-1.5-flash")
+    GEMINI_MAX_TOKENS: int = int(os.getenv("GEMINI_MAX_TOKENS", "2048"))
+    
     # ElevenLabs Configuration
     ELEVENLABS_API_KEY: Optional[str] = os.getenv("ELEVENLABS_API_KEY")
     ELEVENLABS_DEFAULT_VOICE: str = os.getenv("ELEVENLABS_DEFAULT_VOICE", "21m00Tcm4TlvDq8ikWAM")
@@ -44,7 +50,7 @@ class Config:
     @classmethod
     def validate_config(cls) -> bool:
         """Validate that all required configuration is present"""
-        required_keys = ["OPENAI_API_KEY"]
+        required_keys = ["GEMINI_API_KEY"]
         missing_keys = [key for key in required_keys if not getattr(cls, key)]
 
         if missing_keys:
@@ -57,6 +63,7 @@ class Config:
         """Get status of API keys"""
         return {
             "openai": bool(cls.OPENAI_API_KEY),
+            "gemini": bool(cls.GEMINI_API_KEY),
             "elevenlabs": bool(cls.ELEVENLABS_API_KEY),
             "suno": bool(cls.SUNO_API_KEY)
         }
@@ -64,8 +71,9 @@ class Config:
 # Global config instance
 config = Config()
 
-# Add logging for OPENAI_API_KEY loading status
+# Add logging for API keys loading status
 print(f"[CONFIG CHECK] ✅ OPENAI_API_KEY Loaded: {bool(Config.OPENAI_API_KEY)}")
+print(f"[CONFIG CHECK] ✅ GEMINI_API_KEY Loaded: {bool(Config.GEMINI_API_KEY)}")
 
 # Validate configuration at startup
 config.validate_config() 

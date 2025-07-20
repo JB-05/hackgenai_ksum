@@ -1,0 +1,31 @@
+{
+  "story_title": "The Whispering Garden",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "description": "Bored siblings Maya and Alex discover a talking black cat, Midnight, in a dilapidated shed, who invites them into a hidden world.",
+      "prompt": "A whimsical, slightly dark, and mysterious scene. Two children, a girl and a boy, ages 8-10, stand in awe before a sleek black cat with emerald eyes inside a crumbling wooden shed. Sunlight streams in through cracks, illuminating dust motes. The cat speaks, its mouth slightly open, emitting magical, glowing particles. Style:  realistic with a touch of fantasy.",
+      "duration": 5
+    },
+    {
+      "scene_number": 2,
+      "description": "Midnight leads the children through a hidden gate into a breathtaking secret garden, filled with vibrant flowers, a babbling brook, and a mischievous sprite.",
+      "prompt": "A vibrant, sun-dappled secret garden. Lush greenery, flowers in every color imaginable, butterflies with stained-glass wings, a clear brook reflecting the sky. Two children, awestruck, follow a black cat. A small, mischievous sprite with glowing eyes peeks out from behind a giant sunflower. Style: vibrant, painterly, magical realism.",
+      "duration": 5
+    },
+    {
+      "scene_number": 3,
+      "description": "The children face challenges in the garden: a thorny maze, wind riddles, and a rope bridge, testing their teamwork and courage.",
+      "prompt": "A montage of challenges.  A thorny maze casting shadows, children struggling but determined; wind swirling around them as they decipher a glowing riddle; a wobbly rope bridge spanning a sparkling brook, children helping each other cross. Style: dynamic, adventurous, slightly dark but hopeful.",
+      "duration": 5
+    },
+    {
+      "scene_number": 4,
+      "description": "The children find a chest containing storybooks, discovering the true treasure is imagination. They leave the garden, changed by their adventure.",
+      "prompt": "The children open an ornate chest revealing beautifully illustrated storybooks.  Golden light streams through the trees, illuminating their faces, filled with wonder and joy. The garden fades slightly as they exit, returning to the ordinary shed, the secret gate concealed by ivy. Style: warm, nostalgic, magical realism with a touch of melancholy.",
+      "duration": 5
+    }
+  ],
+  "total_scenes": 4,
+  "processing_time": 3.9860260486602783
+}
